@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BABY TIME - Sistema Integral de Ventas</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #12050e;
+            --bg-card: #1d0917;
+            --bg-hover: #2a0e22;
+            --border-color: #3d1433;
+            --primary-pink: #e91e63;
+            --primary-light: #ff6090;
+            --text-main: #ffffff;
+            --text-muted: #b89db2;
+            --accent-green: #25d366;
+            --accent-blue: #2196f3;
+            --accent-orange: #ff9800;
+            --accent-purple: #9c27b0;
+            --accent-red: #ff5252;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 240px;
+            background-color: #170613;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            padding: 0 20px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-pink);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-menu {
+            list-style: none;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--bg-hover);
+            color: var(--primary-light);
+            border-left: 4px solid var(--primary-pink);
+        }
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+        }
+
+        .top-bar {
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            background-color: var(--bg-card);
+        }
+
+        .content-area {
+            padding: 25px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .page-module {
+            display: none;
+        }
+
+        .page-module.active {
+            display: block;
+        }
+
+        /* Buttons & Forms */
+        .btn {
+            background-color: var(--primary-pink);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .btn:hover {
+            background-color: #c2185b;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary-pink);
+            color: var(--primary-light);
+        }
+
+        .btn-outline:hover {
+            background: rgba(233, 30, 99, 0.1);
+        }
+
+        .btn-danger {
+            background-color: transparent;
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .btn-danger:hover {
+            background-color: rgba(255, 82, 82, 0.15);
+        }
+
+        .btn-excel {
+            background-color: #1f7244;
+        }
+
+        .btn-excel:hover {
+            background-color: #155230;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            background-color: #180715;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: white;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-pink);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .time-picker-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.88rem;
+        }
+
+        th {
+            background-color: #170513;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        tr:hover {
+            background-color: var(--bg-hover);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .badge-nuevo {
+            background-color: rgba(156, 39, 176, 0.15);
+            color: var(--accent-purple);
+            border: 1px solid var(--accent-purple);
+        }
+
+        .badge-proceso {
+            background-color: rgba(33, 150, 243, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+        }
+
+        .badge-despachado {
+            background-color: rgba(37, 211, 102, 0.15);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .badge-pendiente {
+            background-color: rgba(255, 152, 0, 0.15);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .badge-noretirado {
+            background-color: rgba(255, 82, 82, 0.15);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 650px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        /* FORMATO DE LA FACTURA (100x100mm) */
+        .invoice-paper-label {
+            width: 100mm;
+            height: 100mm;
+            background: #ffffff !important;
+            color: #000000 !important;
+            padding: 4mm;
+            border: 2px solid #000000;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            page-break-after: always;
+            break-after: page;
+            line-height: 1.3;
+            margin: 10px auto;
+        }
+
+        .invoice-paper-label h2 {
+            font-size: 16px;
+            margin: 0;
+            color: #000000 !important;
+            text-align: center;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 2px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .invoice-paper-label .field-group {
+            margin-top: 3px;
+            border-top: 1px dashed #000000;
+            padding-top: 3px;
+        }
+
+        .invoice-paper-label p {
+            margin: 1px 0;
+            color: #000000 !important;
+        }
+
+        .invoice-paper-label table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 3px;
+            font-size: 11px;
+        }
+
+        .invoice-paper-label th, .invoice-paper-label td {
+            border: 1px solid #000000;
+            padding: 3px;
+            color: #000000 !important;
+            text-align: left;
+        }
+
+        .report-formal-paper {
+            background: white;
+            color: #333;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .report-formal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e91e63;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .report-formal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .report-formal-table th {
+            background-color: #f2f2f2;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .report-formal-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            color: #222;
+        }
+
+        /* REGLAS EXCLUSIVAS PARA IMPRESIÓN CORREGIDAS */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+
+            /* Oculta la interfaz principal y botones de no-impresión */
+            .sidebar, .top-bar, .content-area, .no-print {
+                display: none !important;
+            }
+
+            /* Mantiene visible el modal overlay activo para permitir imprimir su contenido */
+            .modal-overlay {
+                position: static !important;
+                background: transparent !important;
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: auto !important;
+                height: auto !important;
+            }
+
+            .modal-overlay:not(.active) {
+                display: none !important;
+            }
+
+            .modal {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+                background: transparent !important;
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            /* Ajustes del área de impresión de facturas */
+            #printable-invoice-modal-area {
+                display: block !important;
+                width: 100% !important;
+                max-height: none !important;
+                overflow: visible !important;
+                padding: 0 !important;
+            }
+
+            .invoice-paper-label {
+                border: 1px solid #000 !important;
+                margin: 0 auto !important;
+                page-break-after: always !important;
+                break-after: page !important;
+            }
+
+            @page {
+                size: 100mm 100mm;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">BT</div>
+            <span>BABY TIME</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchTab('clientes')"><i class="fa-solid fa-users"></i> Clientes</li>
+            <li class="nav-item" onclick="switchTab('encomendistas')"><i class="fa-solid fa-truck-ramp-box"></i> Encomendistas</li>
+            <li class="nav-item" onclick="switchTab('pedidos')"><i class="fa-solid fa-cart-shopping"></i> Pedidos</li>
+            <li class="nav-item" onclick="switchTab('facturacion')"><i class="fa-solid fa-file-invoice-dollar"></i> Facturación</li>
+            <li class="nav-item" onclick="switchTab('despachos')"><i class="fa-solid fa-truck"></i> Reporte Despachos</li>
+            <li class="nav-item" onclick="switchTab('ventas')"><i class="fa-solid fa-chart-line"></i> Reporte Ventas</li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h3 id="current-tab-title">Gestión de Clientes</h3>
+            <span style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> <span id="live-time"></span></span>
+        </div>
+
+        <div class="content-area">
+
+            <!-- MODULE 1: CLIENTES -->
+            <div id="module-clientes" class="page-module active">
+                <div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="search-cliente" class="form-control" style="max-width: 300px; margin-bottom:0;" placeholder="Buscar cliente..." onkeyup="renderClientes()">
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-excel" onclick="exportTableToExcel('table-clientes-data', 'Clientes_BabyTimes')"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+                        <button class="btn" onclick="openCreateClienteModal()"><i class="fa-solid fa-plus"></i> Nuevo Cliente</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="table-clientes-data">
+                        <thead>
+                            <tr>
+                                <th>Teléfono</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Dirección</th>
+                                <th>Horario Recepción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientes-table-body">
+                            <!-- Dynamically filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MODULE 2: ENCOMENDISTAS -->
+            <div id="module-encomendistas" class="page-module">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h4>Gestión de Encomendistas y Tarifas</h4>
+                    <button class="btn" onclick="openCreateEncomendistaModal()"><i class="fa-solid fa-plus"></i> Nuevo Encomendista</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre Encomendista / Proveedor</th>
+                                <th>Tarifa Base ($)</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="encomendistas-table-body">
+                            <!-- Dynamically filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MODULE 3: PEDIDOS -->
+            <div id="module-pedidos" class="page-module">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th># Pedido</th>
+                                <th>Fecha</th>
+                                <th>Cliente / Teléfono</th>
+                                <th>Artículo</th>
+                                <th>Horario Entrega</th>
+                                <th>Total ($)</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pedidos-table-body">
+                            <!-- Dynamically filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MODULE 4: FACTURACIÓN -->
+            <div id="module-facturacion" class="page-module">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label style="margin: 0;">Filtrar Mes:</label>
+                        <select id="filter-factura-mes" class="form-control" style="width: auto; margin:0;" onchange="renderFacturasHistorial()">
+                            <option value="">-- Todos --</option>
+                            <option value="01">Enero</option>
+                            <option value="02">Febrero</option>
+                            <option value="03">Marzo</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Mayo</option>
+                            <option value="06">Junio</option>
+                            <option value="07">Julio</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+
+                        <label style="margin: 0; margin-left: 10px;">Año:</label>
+                        <select id="filter-factura-anio" class="form-control" style="width: auto; margin:0;" onchange="renderFacturasHistorial()">
+                            <option value="">-- Todos --</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-outline" onclick="printSelectedInvoices()"><i class="fa-solid fa-print"></i> Ver / Imprimir Seleccionadas</button>
+                        <button class="btn" onclick="openNewInvoiceModal()"><i class="fa-solid fa-plus"></i> Nueva Venta / Factura</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="table-facturas-data">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;"><input type="checkbox" id="select-all-facturas" onclick="toggleSelectAllFacturas(this)"></th>
+                                <th># Factura</th>
+                                <th>Fecha Emisión</th>
+                                <th>Cliente</th>
+                                <th>Teléfono</th>
+                                <th>Artículo</th>
+                                <th>Encomendista</th>
+                                <th>Total ($)</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="facturas-table-body">
+                            <!-- Dynamically filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MODULE 5: REPORTE DESPACHOS -->
+            <div id="module-despachos" class="page-module">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="search-despachos" class="form-control" style="max-width: 400px; margin-bottom:0;" placeholder="Buscar por teléfono, cliente, factura, dirección..." onkeyup="renderDespachos()">
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-outline" onclick="printSelectedDespachos()"><i class="fa-solid fa-print"></i> Ver / Imprimir Seleccionadas</button>
+                        <button class="btn btn-excel" onclick="exportTableToExcel('table-despachos-data', 'Reporte_Despachos')"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="table-despachos-data">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;"><input type="checkbox" id="select-all-despachos" onclick="toggleSelectAllDespachos(this)"></th>
+                                <th># Factura</th>
+                                <th>Cliente</th>
+                                <th>Teléfono</th>
+                                <th>Dirección</th>
+                                <th>Encomendista</th>
+                                <th>Horario Entrega</th>
+                                <th>Fecha Entrega</th>
+                                <th>Total Cobrado ($)</th>
+                                <th>Estado Despacho</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="despachos-table-body">
+                            <!-- Dynamically filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MODULE 6: REPORTE VENTAS -->
+            <div id="module-ventas" class="page-module">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label style="margin:0;">Seleccionar Mes:</label>
+                        <select id="ventas-filter-mes" class="form-control" style="width:auto; margin:0;" onchange="renderVentasReport()">
+                            <option value="">-- Todos los meses --</option>
+                            <option value="01">Enero</option>
+                            <option value="02">Febrero</option>
+                            <option value="03">Marzo</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Mayo</option>
+                            <option value="06">Junio</option>
+                            <option value="07">Julio</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Septiembre</option>
+                            <option value="10" selected>Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+
+                        <label style="margin:0; margin-left:10px;">Año:</label>
+                        <select id="ventas-filter-anio" class="form-control" style="width:auto; margin:0;" onchange="renderVentasReport()">
+                            <option value="2026" selected>2026</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-outline" onclick="openPrintSalesReportModal()"><i class="fa-solid fa-print"></i> Imprimir Reporte PDF</button>
+                        <button class="btn btn-excel" onclick="exportTableToExcel('table-encomendistas-report', 'Reporte_Ventas_Mensual')"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <div class="stat-card" style="background:var(--bg-card); padding:15px; border-radius:8px; border:1px solid var(--border-color);">
+                        <span style="font-size:0.8rem; color:var(--text-muted);">Total Ventas Filtradas</span>
+                        <h2 id="stat-total-ventas" style="color:var(--primary-light);">$0.00</h2>
+                    </div>
+                    <div class="stat-card" style="background:var(--bg-card); padding:15px; border-radius:8px; border:1px solid var(--border-color);">
+                        <span style="font-size:0.8rem; color:var(--text-muted);">Cantidad de Pedidos</span>
+                        <h2 id="stat-total-pedidos">0</h2>
+                    </div>
+                    <div class="stat-card" style="background:var(--bg-card); padding:15px; border-radius:8px; border:1px solid var(--border-color);">
+                        <span style="font-size:0.8rem; color:var(--text-muted);">Total Cobrado en Envíos</span>
+                        <h2 id="stat-total-envios">$0.00</h2>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="table-encomendistas-report">
+                        <thead>
+                            <tr>
+                                <th>Encomendista / Proveedor</th>
+                                <th>Tarifa Base Envío</th>
+                                <th>Total Envíos Realizados</th>
+                                <th>Monto Mercadería ($)</th>
+                                <th>Total Fletes/Envíos ($)</th>
+                                <th>Gran Total Recaudado ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="encomendistas-report-body">
+                            <!-- Dynamically filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL: ENCOMENDISTAS (CREAR / EDITAR) -->
+    <div id="modal-encomendista" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h4 id="modal-enc-title">Agregar Nuevo Encomendista</h4>
+                <span class="modal-close" onclick="closeModal('modal-encomendista')">&times;</span>
+            </div>
+            <input type="hidden" id="edit-enc-id">
+
+            <label>Nombre del Encomendista / Proveedor *</label>
+            <input type="text" id="enc-nombre-input" class="form-control" placeholder="Ej: Pedidos Express">
+
+            <label>Tarifa Base de Envío ($) *</label>
+            <input type="number" step="0.01" id="enc-tarifa-input" class="form-control" placeholder="1.50">
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-outline" onclick="closeModal('modal-encomendista')">Cancelar</button>
+                <button class="btn" onclick="saveEncomendista()">Guardar Encomendista</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: IMPRESIÓN REPORTE VENTAS -->
+    <div id="modal-config-print-sales" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h4>Configuración de Impresión del Reporte</h4>
+                <span class="modal-close" onclick="closeModal('modal-config-print-sales')">&times;</span>
+            </div>
+
+            <label>Modalidad de Impresión:</label>
+            <select id="print-type-select" class="form-control" onchange="toggleEncomendistaSelectInPrint()">
+                <option value="todos">Reporte Consolidado (Todos los Encomendistas)</option>
+                <option value="encomendista">Filtrar por Encomendista Específico</option>
+            </select>
+
+            <div id="print-enc-wrapper" style="display: none;">
+                <label>Seleccionar Encomendista:</label>
+                <select id="print-enc-filter-select" class="form-control"></select>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-outline" onclick="closeModal('modal-config-print-sales')">Cancelar</button>
+                <button class="btn" onclick="generateAndPrintSalesReport()"><i class="fa-solid fa-file-pdf"></i> Vista de Impresión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PRINT PREVIEW DE REPORTES DE VENTAS -->
+    <div id="modal-print-sales-view" class="modal-overlay">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header no-print">
+                <h4>Vista Previa del Reporte de Ventas</h4>
+                <span class="modal-close" onclick="closeModal('modal-print-sales-view')">&times;</span>
+            </div>
+
+            <div id="printable-sales-report-area"></div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;" class="no-print">
+                <button class="btn btn-outline" onclick="closeModal('modal-print-sales-view')">Cerrar</button>
+                <button class="btn" onclick="triggerPrint()"><i class="fa-solid fa-print"></i> Imprimir / PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VISTA PREVIA Y CIERRE DE FACTURAS -->
+    <div id="modal-print-invoice-view" class="modal-overlay">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header no-print">
+                <h4>Vista Previa de Etiquetas / Facturas</h4>
+                <span class="modal-close" onclick="closeModal('modal-print-invoice-view')">&times;</span>
+            </div>
+
+            <div id="printable-invoice-modal-area" style="max-height: 60vh; overflow-y: auto; background: #fff; padding: 10px; border-radius: 6px;"></div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;" class="no-print">
+                <button class="btn btn-outline" onclick="closeModal('modal-print-invoice-view')">Cerrar</button>
+                <button class="btn" onclick="triggerPrint()"><i class="fa-solid fa-print"></i> Imprimir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVA FACTURA -->
+    <div id="modal-nueva-factura" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h4>Emitir Nueva Factura / Venta</h4>
+                <span class="modal-close" onclick="closeModal('modal-nueva-factura')">&times;</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Teléfono *</label>
+                    <input type="text" id="factura-telefono" class="form-control" placeholder="Ej: 7000-0000" onkeyup="checkAutoFillByPhone()">
+                </div>
+                <div>
+                    <label>Nombre y Apellido *</label>
+                    <input type="text" id="factura-nombre" class="form-control">
+                </div>
+            </div>
+
+            <label>Dirección de Entrega *</label>
+            <input type="text" id="factura-direccion" class="form-control">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Artículo / Producto *</label>
+                    <input type="text" id="factura-articulo" class="form-control">
+                </div>
+                <div>
+                    <label>Precio del Artículo ($) *</label>
+                    <input type="number" step="0.01" id="factura-precio" class="form-control" oninput="calculateInvoiceTotal()">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Encomendista *</label>
+                    <select id="factura-encomendista-select" class="form-control" onchange="applyEncomendistaRate()"></select>
+                </div>
+                <div>
+                    <label>Costo Envío ($)</label>
+                    <input type="number" step="0.01" id="factura-envio" class="form-control" oninput="calculateInvoiceTotal()">
+                </div>
+                <div>
+                    <label>Fecha Entrega *</label>
+                    <input type="date" id="factura-fecha-entrega" class="form-control">
+                </div>
+            </div>
+
+            <label>Horario Personalizado con AM/PM *</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="font-size:0.75rem;">Hora Desde:</label>
+                    <div class="time-picker-group">
+                        <select id="fac-h-desde-h" class="form-control" style="margin:0;"></select> :
+                        <select id="fac-h-desde-m" class="form-control" style="margin:0;"></select>
+                        <select id="fac-h-desde-ampm" class="form-control" style="margin:0;"><option value="AM">AM</option><option value="PM">PM</option></select>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:0.75rem;">Hora Hasta:</label>
+                    <div class="time-picker-group">
+                        <select id="fac-h-hasta-h" class="form-control" style="margin:0;"></select> :
+                        <select id="fac-h-hasta-m" class="form-control" style="margin:0;"></select>
+                        <select id="fac-h-hasta-ampm" class="form-control" style="margin:0;"><option value="AM">AM</option><option value="PM">PM</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 15px; padding: 10px; background-color: rgba(233, 30, 99, 0.08); border-radius: 6px; border: 1px dashed var(--primary-pink); text-align: right;">
+                <span style="font-size: 1.1rem; font-weight: bold;">TOTAL REAL A COBRAR: $<span id="factura-total-display">0.00</span></span>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-outline" onclick="closeModal('modal-nueva-factura')">Cancelar</button>
+                <button class="btn" onclick="saveInvoice()"><i class="fa-solid fa-floppy-disk"></i> Emitir Factura</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CREAR / EDITAR CLIENTE -->
+    <div id="modal-cliente" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h4 id="modal-cliente-title">Agregar Nuevo Cliente</h4>
+                <span class="modal-close" onclick="closeModal('modal-cliente')">&times;</span>
+            </div>
+            <input type="hidden" id="edit-cliente-id">
+            
+            <label>Número de Teléfono *</label>
+            <input type="text" id="cliente-telefono" class="form-control">
+            
+            <label>Nombre *</label>
+            <input type="text" id="cliente-nombre" class="form-control">
+            
+            <label>Apellido</label>
+            <input type="text" id="cliente-apellido" class="form-control">
+            
+            <label>Dirección Principal</label>
+            <input type="text" id="cliente-direccion" class="form-control">
+
+            <label>Horario Preferido (AM/PM)</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="font-size:0.75rem;">Hora Desde:</label>
+                    <div class="time-picker-group">
+                        <select id="cli-h-desde-h" class="form-control" style="margin:0;"></select> :
+                        <select id="cli-h-desde-m" class="form-control" style="margin:0;"></select>
+                        <select id="cli-h-desde-ampm" class="form-control" style="margin:0;"><option value="AM">AM</option><option value="PM">PM</option></select>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:0.75rem;">Hora Hasta:</label>
+                    <div class="time-picker-group">
+                        <select id="cli-h-hasta-h" class="form-control" style="margin:0;"></select> :
+                        <select id="cli-h-hasta-m" class="form-control" style="margin:0;"></select>
+                        <select id="cli-h-hasta-ampm" class="form-control" style="margin:0;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-outline" onclick="closeModal('modal-cliente')">Cancelar</button>
+                <button class="btn" onclick="saveCliente()">Guardar Cliente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        function populateTimeSelects(prefix) {
+            const hSel1 = document.getElementById(`${prefix}-h-desde-h`);
+            const hSel2 = document.getElementById(`${prefix}-h-hasta-h`);
+            const mSel1 = document.getElementById(`${prefix}-h-desde-m`);
+            const mSel2 = document.getElementById(`${prefix}-h-hasta-m`);
+
+            if(!hSel1) return;
+
+            hSel1.innerHTML = ''; hSel2.innerHTML = '';
+            for(let i=1; i<=12; i++) {
+                const val = i < 10 ? `0${i}` : `${i}`;
+                hSel1.innerHTML += `<option value="${val}">${val}</option>`;
+                hSel2.innerHTML += `<option value="${val}">${val}</option>`;
+            }
+
+            mSel1.innerHTML = ''; mSel2.innerHTML = '';
+            ['00', '15', '30', '45'].forEach(m => {
+                mSel1.innerHTML += `<option value="${m}">${m}</option>`;
+                mSel2.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+
+            hSel1.value = '08'; hSel2.value = '05';
+            mSel1.value = '00'; mSel2.value = '00';
+        }
+
+        let clientes = JSON.parse(localStorage.getItem('bt_clientes')) || [
+            { id: 1, telefono: '50377728371', nombre: 'Zuzu', apellido: 'Ascencio', direccion: 'Local 3/7 Tercer Nivel, Metrogalerías', horaDesde: '08:00 AM', horaHasta: '05:00 PM' }
+        ];
+
+        let encomendistas = JSON.parse(localStorage.getItem('bt_encomendistas')) || [
+            { id: 1, nombre: 'METROGALERIAS', tarifa: 2.00 },
+            { id: 2, nombre: 'PEDIDOS EXPRESS', tarifa: 1.50 },
+            { id: 3, nombre: 'MOTO EXPRESS', tarifa: 2.50 }
+        ];
+
+        let nextFacturaCorrelativo = parseInt(localStorage.getItem('bt_correlativo_seq')) || 102;
+
+        let facturas = JSON.parse(localStorage.getItem('bt_facturas')) || [
+            { id: 101, numero: 'FAC-0101', clienteNombre: 'Zuzu Ascencio', telefono: '50377728371', direccion: 'Local 3/7 Tercer Nivel, Metrogalerías', articulo: 'Ropa de Bebé Set x3', precio: 8.00, encomendista: 'METROGALERIAS', envio: 2.00, total: 10.00, fechaEntrega: '2026-10-31', horaDesde: '08:00 AM', horaHasta: '05:00 PM', estado: 'Despachado', facturado: true, fechaCreacion: '2026-10-29', horaCreacion: '11:00 PM' }
+        ];
+
+        function saveData() {
+            localStorage.setItem('bt_clientes', JSON.stringify(clientes));
+            localStorage.setItem('bt_encomendistas', JSON.stringify(encomendistas));
+            localStorage.setItem('bt_facturas', JSON.stringify(facturas));
+            localStorage.setItem('bt_correlativo_seq', nextFacturaCorrelativo.toString());
+        }
+
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('live-time').innerText = now.toLocaleString('es-SV');
+        }, 1000);
+
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.page-module').forEach(el => el.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(`module-${tab}`).classList.add('active');
+            
+            const titles = {
+                clientes: 'Gestión de Clientes',
+                encomendistas: 'Gestión de Encomendistas',
+                pedidos: 'Control de Pedidos',
+                facturacion: 'Historial de Facturas',
+                despachos: 'Reporte de Despachos',
+                ventas: 'Reporte de Ventas y Encomendistas'
+            };
+            document.getElementById('current-tab-title').innerText = titles[tab];
+
+            if (tab === 'clientes') renderClientes();
+            if (tab === 'encomendistas') renderEncomendistasModule();
+            if (tab === 'pedidos') renderPedidos();
+            if (tab === 'facturacion') renderFacturasHistorial();
+            if (tab === 'despachos') renderDespachos();
+            if (tab === 'ventas') renderVentasReport();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function getTimeString(prefix) {
+            const h1 = document.getElementById(`${prefix}-h-desde-h`).value;
+            const m1 = document.getElementById(`${prefix}-h-desde-m`).value;
+            const ampm1 = document.getElementById(`${prefix}-h-desde-ampm`).value;
+            const h2 = document.getElementById(`${prefix}-h-hasta-h`).value;
+            const m2 = document.getElementById(`${prefix}-h-hasta-m`).value;
+            const ampm2 = document.getElementById(`${prefix}-h-hasta-ampm`).value;
+            return {
+                desde: `${h1}:${m1} ${ampm1}`,
+                hasta: `${h2}:${m2} ${ampm2}`
+            };
+        }
+
+        function checkAutoFillByPhone() {
+            const phone = document.getElementById('factura-telefono').value.trim();
+            if (!phone) return;
+
+            const existing = clientes.find(c => c.telefono === phone);
+            if (existing) {
+                document.getElementById('factura-nombre').value = `${existing.nombre} ${existing.apellido || ''}`.trim();
+                document.getElementById('factura-direccion').value = existing.direccion || '';
+            }
+        }
+
+        function renderClientes() {
+            const query = (document.getElementById('search-cliente') ? document.getElementById('search-cliente').value : '').toLowerCase();
+            const tbody = document.getElementById('clientes-table-body');
+            tbody.innerHTML = '';
+
+            clientes.filter(c => `${c.nombre} ${c.apellido} ${c.telefono}`.toLowerCase().includes(query)).forEach(c => {
+                const horaStr = (c.horaDesde && c.horaHasta) ? `${c.horaDesde} - ${c.horaHasta}` : 'No especificado';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${c.telefono}</strong></td>
+                        <td>${c.nombre}</td>
+                        <td>${c.apellido || ''}</td>
+                        <td>${c.direccion || '-'}</td>
+                        <td>${horaStr}</td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="quickInvoiceByPhone('${c.telefono}')"><i class="fa-solid fa-file-invoice"></i></button>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="editCliente(${c.id})"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="deleteCliente(${c.id})"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openCreateClienteModal() {
+            document.getElementById('modal-cliente-title').innerText = 'Agregar Nuevo Cliente';
+            document.getElementById('edit-cliente-id').value = '';
+            document.getElementById('cliente-telefono').value = '';
+            document.getElementById('cliente-nombre').value = '';
+            document.getElementById('cliente-apellido').value = '';
+            document.getElementById('cliente-direccion').value = '';
+            populateTimeSelects('cli');
+            openModal('modal-cliente');
+        }
+
+        function editCliente(id) {
+            const c = clientes.find(item => item.id === id);
+            if (!c) return;
+
+            document.getElementById('modal-cliente-title').innerText = 'Editar Cliente';
+            document.getElementById('edit-cliente-id').value = c.id;
+            document.getElementById('cliente-telefono').value = c.telefono;
+            document.getElementById('cliente-nombre').value = c.nombre;
+            document.getElementById('cliente-apellido').value = c.apellido || '';
+            document.getElementById('cliente-direccion').value = c.direccion || '';
+            populateTimeSelects('cli');
+            openModal('modal-cliente');
+        }
+
+        function saveCliente() {
+            const editId = document.getElementById('edit-cliente-id').value;
+            const telefono = document.getElementById('cliente-telefono').value.trim();
+            const nombre = document.getElementById('cliente-nombre').value.trim();
+            const apellido = document.getElementById('cliente-apellido').value.trim();
+            const direccion = document.getElementById('cliente-direccion').value.trim();
+            const timeObj = getTimeString('cli');
+
+            if (!telefono || !nombre) {
+                alert('Por favor completa los datos básicos (Teléfono y Nombre).');
+                return;
+            }
+
+            if (editId) {
+                const c = clientes.find(item => item.id == editId);
+                if (c) {
+                    c.telefono = telefono;
+                    c.nombre = nombre;
+                    c.apellido = apellido;
+                    c.direccion = direccion;
+                    c.horaDesde = timeObj.desde;
+                    c.horaHasta = timeObj.hasta;
+                }
+            } else {
+                clientes.push({ id: Date.now(), telefono, nombre, apellido, direccion, horaDesde: timeObj.desde, horaHasta: timeObj.hasta });
+            }
+
+            saveData();
+            closeModal('modal-cliente');
+            renderClientes();
+        }
+
+        function deleteCliente(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
+                clientes = clientes.filter(c => c.id !== id);
+                saveData();
+                renderClientes();
+            }
+        }
+
+        function renderEncomendistasModule() {
+            const tbody = document.getElementById('encomendistas-table-body');
+            tbody.innerHTML = '';
+            encomendistas.forEach(e => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${e.nombre}</strong></td>
+                        <td>$${parseFloat(e.tarifa).toFixed(2)}</td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="editEncomendista(${e.id})"><i class="fa-solid fa-pen"></i> Editar</button>
+                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="deleteEncomendista(${e.id})"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openCreateEncomendistaModal() {
+            document.getElementById('modal-enc-title').innerText = 'Agregar Nuevo Encomendista';
+            document.getElementById('edit-enc-id').value = '';
+            document.getElementById('enc-nombre-input').value = '';
+            document.getElementById('enc-tarifa-input').value = '';
+            openModal('modal-encomendista');
+        }
+
+        function editEncomendista(id) {
+            const e = encomendistas.find(item => item.id === id);
+            if (!e) return;
+
+            document.getElementById('modal-enc-title').innerText = 'Editar Encomendista';
+            document.getElementById('edit-enc-id').value = e.id;
+            document.getElementById('enc-nombre-input').value = e.nombre;
+            document.getElementById('enc-tarifa-input').value = e.tarifa;
+            openModal('modal-encomendista');
+        }
+
+        function saveEncomendista() {
+            const editId = document.getElementById('edit-enc-id').value;
+            const nombre = document.getElementById('enc-nombre-input').value.trim();
+            const tarifa = parseFloat(document.getElementById('enc-tarifa-input').value) || 0;
+
+            if (!nombre) {
+                alert('Ingresa el nombre del encomendista.');
+                return;
+            }
+
+            if (editId) {
+                const e = encomendistas.find(item => item.id == editId);
+                if (e) {
+                    e.nombre = nombre;
+                    e.tarifa = tarifa;
+                }
+            } else {
+                encomendistas.push({ id: Date.now(), nombre, tarifa });
+            }
+
+            saveData();
+            closeModal('modal-encomendista');
+            renderEncomendistasModule();
+        }
+
+        function deleteEncomendista(id) {
+            if (confirm('¿Estás seguro de eliminar este encomendista?')) {
+                encomendistas = encomendistas.filter(e => e.id !== id);
+                saveData();
+                renderEncomendistasModule();
+            }
+        }
+
+        function openNewInvoiceModal() {
+            populateTimeSelects('fac');
+            populateFacturaSelects();
+            openModal('modal-nueva-factura');
+        }
+
+        function populateFacturaSelects() {
+            const eSelect = document.getElementById('factura-encomendista-select');
+            eSelect.innerHTML = '<option value="">-- Seleccionar Encomendista --</option>';
+            encomendistas.forEach(e => {
+                eSelect.innerHTML += `<option value="${e.nombre}">${e.nombre} ($${parseFloat(e.tarifa).toFixed(2)})</option>`;
+            });
+        }
+
+        function applyEncomendistaRate() {
+            const name = document.getElementById('factura-encomendista-select').value;
+            const enc = encomendistas.find(e => e.nombre === name);
+            if (enc) {
+                document.getElementById('factura-envio').value = parseFloat(enc.tarifa).toFixed(2);
+                calculateInvoiceTotal();
+            }
+        }
+
+        function calculateInvoiceTotal() {
+            const precio = parseFloat(document.getElementById('factura-precio').value) || 0;
+            const envio = parseFloat(document.getElementById('factura-envio').value) || 0;
+            document.getElementById('factura-total-display').innerText = (precio + envio).toFixed(2);
+        }
+
+        function saveInvoice() {
+            const telefono = document.getElementById('factura-telefono').value.trim();
+            const nombre = document.getElementById('factura-nombre').value.trim();
+            const direccion = document.getElementById('factura-direccion').value.trim();
+            const articulo = document.getElementById('factura-articulo').value.trim();
+            const precio = parseFloat(document.getElementById('factura-precio').value) || 0;
+            const fechaEntrega = document.getElementById('factura-fecha-entrega').value;
+            const encomendista = document.getElementById('factura-encomendista-select').value;
+
+            if (!telefono || !nombre || !direccion || !articulo || !precio || !fechaEntrega || !encomendista) {
+                alert('Debes completar TODOS los campos requeridos (*).');
+                return;
+            }
+
+            const timeObj = getTimeString('fac');
+            const envio = parseFloat(document.getElementById('factura-envio').value) || 0;
+
+            clientes = clientes.filter(c => c.telefono !== telefono);
+
+            const now = new Date();
+            const fechaCreacion = now.toISOString().split('T')[0];
+            const horaCreacion = now.toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+            const numCorrelativo = `FAC-${String(nextFacturaCorrelativo).padStart(4, '0')}`;
+            nextFacturaCorrelativo++;
+
+            const newFac = {
+                id: Date.now(),
+                numero: numCorrelativo,
+                clienteNombre: nombre,
+                telefono,
+                direccion,
+                articulo,
+                precio,
+                encomendista,
+                envio,
+                total: precio + envio,
+                fechaEntrega,
+                horaDesde: timeObj.desde,
+                horaHasta: timeObj.hasta,
+                estado: 'Despachado',
+                facturado: true,
+                fechaCreacion,
+                horaCreacion
+            };
+
+            facturas.push(newFac);
+            saveData();
+            closeModal('modal-nueva-factura');
+
+            renderClientes();
+            renderFacturasHistorial();
+            renderDespachos();
+            alert(`Factura ${numCorrelativo} emitida con éxito.`);
+        }
+
+        function quickInvoiceByPhone(phone) {
+            switchTab('facturacion');
+            openNewInvoiceModal();
+            document.getElementById('factura-telefono').value = phone;
+            checkAutoFillByPhone();
+        }
+
+        function renderFacturasHistorial() {
+            const mesFilter = document.getElementById('filter-factura-mes').value;
+            const anioFilter = document.getElementById('filter-factura-anio').value;
+            const tbody = document.getElementById('facturas-table-body');
+            tbody.innerHTML = '';
+
+            facturas.filter(f => f.facturado).filter(f => {
+                const parts = f.fechaCreacion.split('-');
+                if (mesFilter && parts[1] !== mesFilter) return false;
+                if (anioFilter && parts[0] !== anioFilter) return false;
+                return true;
+            }).sort((a, b) => b.id - a.id).forEach(f => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><input type="checkbox" class="fac-checkbox" value="${f.id}"></td>
+                        <td><strong>${f.numero}</strong></td>
+                        <td>${f.fechaCreacion} ${f.horaCreacion ? f.horaCreacion : ''}</td>
+                        <td>${f.clienteNombre}</td>
+                        <td>${f.telefono}</td>
+                        <td>${f.articulo}</td>
+                        <td>${f.encomendista}</td>
+                        <td>$${parseFloat(f.total).toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick='previewInvoices([${JSON.stringify(f)}])'><i class="fa-solid fa-print"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function toggleSelectAllFacturas(source) {
+            document.querySelectorAll('.fac-checkbox').forEach(cb => cb.checked = source.checked);
+        }
+
+        function printSelectedInvoices() {
+            const selectedIds = Array.from(document.querySelectorAll('.fac-checkbox:checked')).map(cb => parseInt(cb.value));
+            if (selectedIds.length === 0) {
+                alert('Selecciona al menos una factura.');
+                return;
+            }
+            previewInvoices(facturas.filter(f => selectedIds.includes(f.id)));
+        }
+
+        function renderPedidos() {
+            const tbody = document.getElementById('pedidos-table-body');
+            tbody.innerHTML = '';
+            
+            facturas.filter(f => f.estado === 'Nuevo' || f.estado === 'En Proceso' || !f.facturado).forEach(f => {
+                const horaStr = (f.horaDesde && f.horaHasta) ? `${f.horaDesde} - ${f.horaHasta}` : 'Standard';
+                const badgeClass = f.estado === 'Despachado' ? 'badge-despachado' : (f.estado === 'Nuevo' ? 'badge-nuevo' : 'badge-proceso');
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${f.numero}</strong></td>
+                        <td>${f.fechaCreacion}</td>
+                        <td>${f.clienteNombre}<br><small style="color:var(--text-muted);">${f.telefono}</small></td>
+                        <td>${f.articulo}</td>
+                        <td>${horaStr}</td>
+                        <td>$${parseFloat(f.total).toFixed(2)}</td>
+                        <td><span class="badge ${badgeClass}">${f.estado}</span></td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="emitInvoiceForPedido(${f.id})"><i class="fa-solid fa-print"></i> Facturar</button>
+                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="deleteFactura(${f.id})"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function emitInvoiceForPedido(id) {
+            const fac = facturas.find(f => f.id === id);
+            if (fac) {
+                fac.facturado = true;
+                fac.estado = 'Despachado';
+                clientes = clientes.filter(c => c.telefono !== fac.telefono);
+                saveData();
+                previewInvoices([fac]);
+                renderClientes();
+                renderPedidos();
+                renderDespachos();
+            }
+        }
+
+        function renderDespachos() {
+            const query = (document.getElementById('search-despachos') ? document.getElementById('search-despachos').value : '').toLowerCase();
+            const tbody = document.getElementById('despachos-table-body');
+            tbody.innerHTML = '';
+            
+            facturas.filter(f => f.facturado || (f.estado !== 'Nuevo' && f.estado !== 'En Proceso'))
+            .filter(f => `${f.clienteNombre} ${f.telefono} ${f.direccion} ${f.fechaEntrega} ${f.numero}`.toLowerCase().includes(query))
+            .forEach(f => {
+                const horaStr = (f.horaDesde && f.horaHasta) ? `${f.horaDesde} - ${f.horaHasta}` : 'Standard';
+                const badgeClass = f.estado === 'Despachado' ? 'badge-despachado' : (f.estado === 'No Retirado' ? 'badge-noretirado' : (f.estado === 'Nuevo' ? 'badge-nuevo' : 'badge-pendiente'));
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><input type="checkbox" class="desp-checkbox" value="${f.id}"></td>
+                        <td><strong>${f.numero}</strong></td>
+                        <td>${f.clienteNombre}</td>
+                        <td>${f.telefono}</td>
+                        <td>${f.direccion}</td>
+                        <td>${f.encomendista}</td>
+                        <td>${horaStr}</td>
+                        <td>${f.fechaEntrega}</td>
+                        <td>$${parseFloat(f.total).toFixed(2)}</td>
+                        <td><span class="badge ${badgeClass}" onclick="cycleStatusDespachos(${f.id})">${f.estado}</span></td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick='previewInvoices([${JSON.stringify(f)}])'><i class="fa-solid fa-print"></i></button>
+                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="deleteFactura(${f.id})"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function toggleSelectAllDespachos(source) {
+            document.querySelectorAll('.desp-checkbox').forEach(cb => cb.checked = source.checked);
+        }
+
+        function printSelectedDespachos() {
+            const selectedIds = Array.from(document.querySelectorAll('.desp-checkbox:checked')).map(cb => parseInt(cb.value));
+            if (selectedIds.length === 0) {
+                alert('Selecciona al menos un cliente de la lista de despachos.');
+                return;
+            }
+            previewInvoices(facturas.filter(f => selectedIds.includes(f.id)));
+        }
+
+        function cycleStatusDespachos(id) {
+            const fac = facturas.find(f => f.id === id);
+            if (fac) {
+                if (fac.estado === 'Despachado') fac.estado = 'Pendiente';
+                else if (fac.estado === 'Pendiente') fac.estado = 'No Retirado';
+                else if (fac.estado === 'No Retirado') {
+                    fac.estado = 'Nuevo';
+                    fac.facturado = false;
+                } else fac.estado = 'Despachado';
+                saveData();
+                renderPedidos();
+                renderDespachos();
+            }
+        }
+
+        function deleteFactura(id) {
+            if (confirm('¿Deseas eliminar este registro?')) {
+                facturas = facturas.filter(f => f.id !== id);
+                saveData();
+                renderPedidos();
+                renderDespachos();
+                renderFacturasHistorial();
+            }
+        }
+
+        function renderVentasReport() {
+            const mesFilter = document.getElementById('ventas-filter-mes').value;
+            const anioFilter = document.getElementById('ventas-filter-anio').value;
+
+            let totalVentas = 0; let totalEnvios = 0;
+
+            const filtered = facturas.filter(f => f.facturado).filter(f => {
+                const parts = f.fechaCreacion.split('-');
+                if (mesFilter && parts[1] !== mesFilter) return false;
+                if (anioFilter && parts[0] !== anioFilter) return false;
+                return true;
+            });
+
+            filtered.forEach(f => {
+                totalVentas += parseFloat(f.total);
+                totalEnvios += parseFloat(f.envio || 0);
+            });
+
+            document.getElementById('stat-total-ventas').innerText = `$${totalVentas.toFixed(2)}`;
+            document.getElementById('stat-total-pedidos').innerText = filtered.length;
+            document.getElementById('stat-total-envios').innerText = `$${totalEnvios.toFixed(2)}`;
+
+            const tbody = document.getElementById('encomendistas-report-body');
+            tbody.innerHTML = '';
+
+            encomendistas.forEach(e => {
+                const facsEnc = filtered.filter(f => f.encomendista === e.nombre);
+                let sumMercaderia = 0; let sumEnvio = 0;
+                facsEnc.forEach(f => { sumMercaderia += parseFloat(f.precio); sumEnvio += parseFloat(f.envio); });
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${e.nombre}</strong></td>
+                        <td>$${parseFloat(e.tarifa).toFixed(2)}</td>
+                        <td>${facsEnc.length} envíos</td>
+                        <td>$${sumMercaderia.toFixed(2)}</td>
+                        <td>$${sumEnvio.toFixed(2)}</td>
+                        <td style="color: var(--primary-light); font-weight: bold;">$${(sumMercaderia + sumEnvio).toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openPrintSalesReportModal() {
+            const select = document.getElementById('print-enc-filter-select');
+            select.innerHTML = '';
+            encomendistas.forEach(e => {
+                select.innerHTML += `<option value="${e.nombre}">${e.nombre}</option>`;
+            });
+            openModal('modal-config-print-sales');
+        }
+
+        function toggleEncomendistaSelectInPrint() {
+            const val = document.getElementById('print-type-select').value;
+            document.getElementById('print-enc-wrapper').style.display = val === 'encomendista' ? 'block' : 'none';
+        }
+
+        function generateAndPrintSalesReport() {
+            const printType = document.getElementById('print-type-select').value;
+            const selectedEncName = document.getElementById('print-enc-filter-select').value;
+            const mesFilter = document.getElementById('ventas-filter-mes').value;
+            const anioFilter = document.getElementById('ventas-filter-anio').value;
+
+            let filtered = facturas.filter(f => f.facturado).filter(f => {
+                const parts = f.fechaCreacion.split('-');
+                if (mesFilter && parts[1] !== mesFilter) return false;
+                if (anioFilter && parts[0] !== anioFilter) return false;
+                return true;
+            });
+
+            if (printType === 'encomendista') {
+                filtered = filtered.filter(f => f.encomendista === selectedEncName);
+            }
+
+            const container = document.getElementById('printable-sales-report-area');
+            closeModal('modal-config-print-sales');
+
+            let totalVentas = 0; let totalEnvios = 0;
+            filtered.forEach(f => { totalVentas += f.total; totalEnvios += f.envio; });
+
+            container.innerHTML = `
+                <div class="report-formal-paper">
+                    <div class="report-formal-header">
+                        <div>
+                            <h1 style="color:#c2185b; margin:0;">BABY TIME</h1>
+                            <p style="margin:2px 0; color:#555; font-size:12px;">
+                                ${printType === 'encomendista' ? `Reporte Exclusivo - Encomendista: ${selectedEncName}` : 'Reporte General Consolidado'}
+                            </p>
+                        </div>
+                        <div style="text-align:right; font-size:12px;">
+                            <p><strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString('es-SV')}</p>
+                            <p><strong>Período:</strong> ${mesFilter ? mesFilter + '/' : ''}${anioFilter}</p>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; background:#f9f9f9; padding:10px; border:1px solid #ddd; border-radius:4px; font-size:13px; font-weight:bold; margin-bottom:15px;">
+                        <span>Total de Ventas: $${totalVentas.toFixed(2)}</span>
+                        <span>Total de Encomiendas: ${filtered.length}</span>
+                        <span>Total Cobrado por Envíos: $${totalEnvios.toFixed(2)}</span>
+                    </div>
+
+                    <table class="report-formal-table">
+                        <thead>
+                            <tr>
+                                <th>Número de Factura</th>
+                                <th>Fecha de Emisión</th>
+                                <th>Cliente</th>
+                                <th>Descripción de Artículo</th>
+                                <th>Encomendista Asignado</th>
+                                <th>Monto de Envío</th>
+                                <th>Total Final Cobrado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtered.map(f => `
+                                <tr>
+                                    <td>${f.numero}</td>
+                                    <td>${f.fechaCreacion} ${f.horaCreacion ? f.horaCreacion : ''}</td>
+                                    <td>${f.clienteNombre} (${f.telefono})</td>
+                                    <td>${f.articulo}</td>
+                                    <td>${f.encomendista}</td>
+                                    <td>$${f.envio.toFixed(2)}</td>
+                                    <td><strong>$${f.total.toFixed(2)}</strong></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            openModal('modal-print-sales-view');
+        }
+
+        // VISTA PREVIA CON BOTÓN DE CERRAR
+        function previewInvoices(facArray) {
+            const container = document.getElementById('printable-invoice-modal-area');
+            container.innerHTML = '';
+
+            facArray.forEach(f => {
+                const horaEmision = f.horaCreacion || '12:00 PM';
+                container.innerHTML += `
+                    <div class="invoice-paper-label">
+                        <div>
+                            <h2>BABY TIME</h2>
+                            <div style="display:flex; justify-content:space-between; margin-top:3px; font-weight:bold; font-size:11px; color:#000;">
+                                <span>Factura: ${f.numero}</span>
+                                <span>Fecha: ${f.fechaCreacion} ${horaEmision}</span>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <p><strong>Cliente:</strong> ${f.clienteNombre}</p>
+                            <p><strong>Teléfono:</strong> ${f.telefono}</p>
+                            <p><strong>Lugar de Entrega:</strong> ${f.direccion}</p>
+                            <p><strong>Fecha Programada:</strong> ${f.fechaEntrega}</p>
+                            <p><strong>Horario Entrega:</strong> ${f.horaDesde || '08:00 AM'} a ${f.horaHasta || '05:00 PM'}</p>
+                            <p><strong>Encomendista:</strong> ${f.encomendista}</p>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Descripción de Artículo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${f.articulo}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="text-align:right; font-weight:bold; font-size:14px; margin-top:4px; border-top:2px solid #000; padding-top:2px; color:#000;">
+                            TOTAL COMPLETO A COBRAR: $${parseFloat(f.total).toFixed(2)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            openModal('modal-print-invoice-view');
+        }
+
+        function triggerPrint() {
+            window.print();
+        }
+
+        function exportTableToExcel(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte" });
+            XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        renderClientes();
+    </script>
+</body>
+</html>
